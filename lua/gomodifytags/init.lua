@@ -33,9 +33,9 @@ local function get_struct_name()
 end
 
 local function get_value_or_default(opt, global, default)
-  if not opt == nil then
+  if opt ~= nil then
     return opt
-  elseif not global == nil then
+  elseif global ~= nil then
     return global
   else
     return default
@@ -43,6 +43,16 @@ local function get_value_or_default(opt, global, default)
 end
 
 function M.GoAddTags(tag_name, opts)
+  if config.config.parse.enabled and type(opts) == "string" then
+    local tbl = {}
+
+    for str in string.gmatch(opts, "([^" .. config.config.parse.seperator .. "]+)") do
+      table.insert(tbl, str)
+    end
+
+    opts = load("return " .. tbl[2])()
+  end
+
   opts = opts or {}
 
   local filename = vim.fn.expand('%p')

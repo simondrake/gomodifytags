@@ -6,6 +6,7 @@ M.config = {
   override = true,
   sort = false,
   options = {},
+  parse = { enabled = false, seperator = "--" },
 }
 
 -- TODO actually check the config
