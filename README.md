@@ -5,9 +5,12 @@
 ## Caution
 This plug-in is still very much in alpha phase, use at your own risk.
 
-## Installation
-* neovim 0.5.0+ required
+## Pre-requisites
+* neovim 0.5.0+
 * [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+* [gomodifytags](https://github.com/fatih/gomodifytags)
+
+## Installation
 * install using your favorite plugin manager ([lazy](https://github.com/folke/lazy.nvim) in this example)
 
 ```vim
