@@ -62,7 +62,7 @@ function M.GoAddTags(tag_name, opts)
   local skip_unexported = get_value_or_default(opts.skip_unexported, config.config.skip_unexported, false)
   local override = get_value_or_default(opts.override, config.config.override, false)
   local sort = get_value_or_default(opts.sort, config.config.sort, false)
-  local options = get_value_or_default(opts.options, config.config.options, false)
+  local options = get_value_or_default(opts.options, config.config.options, {})
 
   local query = 'gomodifytags -file ' ..
       filename .. ' -struct ' .. struct_name .. ' -w -add-tags ' .. tag_name .. ' -transform ' .. transformation
@@ -79,7 +79,7 @@ function M.GoAddTags(tag_name, opts)
     query = query .. ' -sort '
   end
 
-  if options then
+  if next(options) ~= nil then
     query = query .. ' -add-options '
     for i, option in ipairs(options) do
       if i == 1 then
