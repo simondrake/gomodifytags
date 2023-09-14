@@ -5,7 +5,6 @@ M.config = {
   skip_unexported = true,
   override = true,
   sort = false,
-  options = {},
   parse = { enabled = false, seperator = "--" },
 }
 
