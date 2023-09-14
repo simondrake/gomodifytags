@@ -63,6 +63,16 @@ function M.GoAddTags(tag_name, opts)
   local override = get_value_or_default(opts.override, config.config.override, false)
   local sort = get_value_or_default(opts.sort, config.config.sort, false)
   local options = get_value_or_default(opts.options, config.config.options, {})
+  local is_debug = get_value_or_default(opts.debug, false, false)
+
+  if is_debug then
+    vim.print(string.format(
+      "filename: '%s'\nstruct_name: '%s'\ntransformation: '%s'\nskip_unexported: '%s'\noverride: '%s'\nsort: '%s'\n",
+      filename, struct_name, transformation, skip_unexported, override, sort
+    ))
+    vim.print("options: ", options)
+    vim.print("opts: ", opts)
+  end
 
   local query = 'gomodifytags -file ' ..
       filename .. ' -struct ' .. struct_name .. ' -w -add-tags ' .. tag_name .. ' -transform ' .. transformation
@@ -88,6 +98,10 @@ function M.GoAddTags(tag_name, opts)
         query = query .. ',' .. option
       end
     end
+  end
+
+  if is_debug then
+    vim.print(string.format("query: '%s'", query))
   end
 
   vim.fn.system(query)
