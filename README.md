@@ -1,5 +1,5 @@
 <div align="center">
-  
+
 # gomodifytags
 
 </div>
@@ -30,7 +30,7 @@ Require and call the `setup` function, with optional configuration (see below) -
 By passing through an optional table into the `setup()` function, you can set defaults that can be overridden on a per-invocation basis. For example, to change the `transformation` to `snakecase` you would do the following:
 
 ```lua
-require('gomodifytags').setup({transformation = "camelcase"})`
+require('gomodifytags').setup({transformation = "snakecase"})`
 ```
 
 Or directly with the lazy plug-in manager:
@@ -40,7 +40,7 @@ Or directly with the lazy plug-in manager:
     'simondrake/gomodifytags',
     dependencies = { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
     opts = {
-      transformation = "camelcase",
+      transformation = "snakecase",
       skip_unexported = true,
       override = true,
       options = { "json=omitempty" }
