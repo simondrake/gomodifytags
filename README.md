@@ -63,10 +63,20 @@ M.config = {
 
 ## Running
 
-This plug-in can then be used, with optional overrides, by requiring and calling the `GoAddTags` function
+### GoAddTags
+
+`GoAddTags` can be used, with optional overrides, by requiring and calling the `GoAddTags` function:
 
 ```vim
 :lua require('gomodifytags').GoAddTags("json,yaml", {transformation = "snakecase", skip_unexported = false})
+```
+
+### GoRemoveTags
+
+`GoRemoveTags` can be used by requiring and calling the `GoRemoveTags` function:
+
+```vim
+:lua require('gomodifytags').GoRemoveTags("json,yaml")
 ```
 
 ## Creating a command
