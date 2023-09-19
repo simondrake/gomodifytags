@@ -42,6 +42,42 @@ local function get_value_or_default(opt, global, default)
   end
 end
 
+function M.GoRemoveTags(tag_name, opts)
+  if config.config.parse.enabled and type(opts) == "string" then
+    local tbl = {}
+
+    for str in string.gmatch(opts, "([^" .. config.config.parse.seperator .. "]+)") do
+      table.insert(tbl, str)
+    end
+
+    opts = load("return " .. tbl[2])()
+  end
+
+  opts = opts or {}
+
+  local filename = vim.fn.expand('%p')
+  local struct_name = get_struct_name()
+
+  local is_debug = get_value_or_default(opts.debug, false, false)
+
+  if is_debug then
+    vim.print(string.format(
+      "filename: '%s'\nstruct_name: '%s'\n",
+      filename, struct_name
+    ))
+    vim.print("opts: ", opts)
+  end
+
+  local query = 'gomodifytags -file ' .. filename .. ' -struct ' .. struct_name .. ' -w -remove-tags ' .. tag_name
+
+  if is_debug then
+    vim.print(string.format("query: '%s'", query))
+  end
+
+  vim.fn.system(query)
+  vim.cmd('edit!')
+end
+
 function M.GoAddTags(tag_name, opts)
   if config.config.parse.enabled and type(opts) == "string" then
     local tbl = {}
