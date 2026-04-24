@@ -2,117 +2,140 @@
 
 # gomodifytags
 
+##### A Neovim plugin for adding and removing struct tags in Go, powered by [gomodifytags](https://github.com/fatih/gomodifytags).
+
 </div>
 
-## Caution
-This plug-in is still very much in alpha phase, use at your own risk.
+Place your cursor inside a Go struct and run a command to add or remove tags -- the plugin uses treesitter to detect the struct name automatically.
 
-## Pre-requisites
-* neovim 0.5.0+
-* [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
-* [gomodifytags](https://github.com/fatih/gomodifytags)
+## Requirements
+
+- Neovim 0.9+
+- [gomodifytags](https://github.com/fatih/gomodifytags) installed and on your `$PATH`
 
 ## Installation
-* install using your favorite plugin manager ([lazy](https://github.com/folke/lazy.nvim) in this example)
-
-```vim
-  {
-    'simondrake/gomodifytags',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
-  }
-```
-## Set-up
-
-Require and call the `setup` function, with optional configuration (see below) - `require('gomodifytags').setup()`.
-
-## Configuration
-
-By passing through an optional table into the `setup()` function, you can set defaults that can be overridden on a per-invocation basis. For example, to change the `transformation` to `snakecase` you would do the following:
 
 ```lua
-require('gomodifytags').setup({transformation = "snakecase"})`
-```
-
-Or directly with the lazy plug-in manager:
-
-```lua
-  {
-    'simondrake/gomodifytags',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
-    opts = {
-      transformation = "snakecase",
-      skip_unexported = true,
-      override = true,
-      options = { "json=omitempty" }
-    },
-  }
-```
-
-The default configuration for this plug-in is below:
-
-```lua
-M.config = {
-  transformation = "camelcase",
-  skip_unexported = true,
-  override = true,
-  sort = false,
-  options = {},
-  parse = { enabled = false, seperator = "--" }
+-- lazy.nvim
+{
+  "simondrake/gomodifytags",
+  ft = "go",
+  opts = {},
 }
 ```
 
-## Running
+## Configuration
+
+Pass options to `setup()` to set defaults. Every option can also be overridden per-call (see [Usage](#usage)).
+
+```lua
+{
+  "simondrake/gomodifytags",
+  ft = "go",
+  opts = {
+    transformation = "snakecase",
+    skip_unexported = true,
+    override = true,
+    sort = true,
+    options = { "json=omitempty" },
+  },
+}
+```
+
+### Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `transformation` | `string` | `"camelcase"` | Tag name casing: `camelcase`, `snakecase`, `lispcase`, `pascalcase`, `titlecase`, `keep` |
+| `skip_unexported` | `boolean` | `true` | Skip unexported (lowercase) fields |
+| `override` | `boolean` | `true` | Override existing tags instead of skipping them |
+| `sort` | `boolean` | `false` | Sort tags alphabetically |
+| `options` | `string[]` | `{}` | Tag options (e.g. `{ "json=omitempty", "xml=cdata" }`) |
+| `parse` | `table` | `{ enabled = false, separator = "--" }` | Enable string-based argument parsing for user commands (see [User Commands](#user-commands)) |
+
+## Usage
 
 ### GoAddTags
 
-`GoAddTags` can be used, with optional overrides, by requiring and calling the `GoAddTags` function:
+Add struct tags. Place your cursor inside a struct and run:
 
 ```vim
-:lua require('gomodifytags').GoAddTags("json,yaml", {transformation = "snakecase", skip_unexported = false})
+:lua require('gomodifytags').GoAddTags("json")
+```
+
+Add multiple tags at once:
+
+```vim
+:lua require('gomodifytags').GoAddTags("json,yaml")
+```
+
+Override defaults for a single call:
+
+```vim
+:lua require('gomodifytags').GoAddTags("json", { transformation = "snakecase", skip_unexported = false })
 ```
 
 ### GoRemoveTags
 
-`GoRemoveTags` can be used by requiring and calling the `GoRemoveTags` function:
+Remove struct tags:
+
+```vim
+:lua require('gomodifytags').GoRemoveTags("json")
+```
+
+Remove multiple tags:
 
 ```vim
 :lua require('gomodifytags').GoRemoveTags("json,yaml")
 ```
 
-## Creating a command
+### Debug
 
-Because of how `vim.api.nvim_create_user_command` works, it is not possible to pass through a table and `args` is a string parameter. If you would still like to use a command, this is very experimental and may have some edge cases.
-
-If you would still like to try it out, you will need to set an additional configuration - `parse`. In most cases `seperator` can be kept as the default (`--`) but it is added as a configuration option in case you need to amend it.
-
-```lua
-require('gomodifytags').setup({transformation = "camelcase", parse = { enabled = true, seperator = "--" }})`
-```
-
-Or directly with the lazy plug-in manager:
-
-```lua
-  {
-    'simondrake/gomodifytags',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
-    opts = {
-      transformation = "camelcase",
-      skip_unexported = true,
-      override = true,
-      options = { "json=omitempty" },
-      parse = { enabled = true, seperator = "--" },
-    },
-  }
-```
-
-You can use the following which will create a `GoAddTags` command:
-
-```lua
-vim.api.nvim_create_user_command('GoAddTags', function(opts) require('gomodifytags').GoAddTags(opts.fargs[1], opts.args) end, { nargs = "+" })
-```
-
-Which can be used with the following format, where `<parse.seperator>` is what is defined in the configuration (`--` by default):
+Pass `debug = true` to any call to print the constructed command and intermediate values:
 
 ```vim
-:GoAddTags "json" <parse.seperator> {transformation = "snakecase", skip_unexported = false}
+:lua require('gomodifytags').GoAddTags("json", { debug = true })
+```
+
+## Keymaps
+
+```lua
+vim.keymap.set("n", "<leader>gat", function()
+  require("gomodifytags").GoAddTags("json")
+end, { desc = "Add json struct tags" })
+
+vim.keymap.set("n", "<leader>grt", function()
+  require("gomodifytags").GoRemoveTags("json")
+end, { desc = "Remove json struct tags" })
+```
+
+## User Commands
+
+Because `nvim_create_user_command` passes arguments as a single string, passing a Lua table of overrides requires the `parse` option.
+
+Enable it in your config:
+
+```lua
+opts = {
+  parse = { enabled = true, separator = "--" },
+}
+```
+
+Then create the commands:
+
+```lua
+vim.api.nvim_create_user_command("GoAddTags", function(cmd)
+  require("gomodifytags").GoAddTags(cmd.fargs[1], cmd.args)
+end, { nargs = "+" })
+
+vim.api.nvim_create_user_command("GoRemoveTags", function(cmd)
+  require("gomodifytags").GoRemoveTags(cmd.fargs[1], cmd.args)
+end, { nargs = "+" })
+```
+
+Usage (where `--` is your configured separator):
+
+```vim
+:GoAddTags json -- { transformation = "snakecase" }
+:GoRemoveTags yaml
 ```

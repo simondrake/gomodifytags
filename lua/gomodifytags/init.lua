@@ -1,11 +1,10 @@
-local ts_utils = require 'nvim-treesitter.ts_utils'
 local config = require("gomodifytags.config")
 
 local M = {}
 
 
 local function get_struct_name()
-  local current_node = ts_utils.get_node_at_cursor()
+  local current_node = vim.treesitter.get_node()
 
   if not current_node then return "" end
 
